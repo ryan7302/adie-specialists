@@ -7,7 +7,7 @@ class Arachne:
     def __init__(self):
         self.tasks = []
         self.config = {}
-        self.llama = Llama()
+        self.llama = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  # initialize llama with the correct model
         self.git_manager = GitManager()
         
     def load_tasks(self, file_name='arachne_tasks.txt'):
@@ -21,13 +21,13 @@ class Arachne:
     def run(self):
         for task in self.tasks:
             files_to_edit = self.llama.ask(task)  # ask LLM which files to edit
-            new_content = 'new content'  # generate new content (this is just an example, replace with actual implementation)
+            new_content = 'new content'  # generate new content   (replace with actual implementation)
             
             for file in files_to_edit:
                 if file.endswith('.html') or file.endswith('.css') or file.endswith('.js'):
                     self.git_manager.edit_file(file, new_content)  # edit the file with new content
             
-            test_command = 'test command'  # get the test command (this is just an example, replace with actual implementation)
+            test_command = 'test command'  # get the test command   (replace with actual implementation)
             os.system(test_command)  # run the test command
         
             branch_name = f"arachne/task-{task}"
@@ -37,7 +37,7 @@ class Arachne:
             
             self.git_manager.push()  # push the changes
         
-        pull_request = 'open PR command'  # get the command to open a pull request (this is just an example, replace with actual implementation)
+        pull_request = 'open PR command'  # get the command to open a pull request  (replace with actual implementation)
         os.system(pull_request)  # run the command to open a pull request
     
     def daemon(self):
