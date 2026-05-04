@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import requests
 
 class Arachne:
-    def  __init__(self, config):
+    def __init__(self, config):
         self.config = config
     
     def fetch_documentation(self, documentation_config):
@@ -23,14 +23,17 @@ class Arachne:
             print('Invalid URL format')
         
     def validate_file(self, file_path):
-        return os.path.isfile(file_path)
+        return os.path.isfile(file_path) if file_path is not None else False
     
     def validate_web_file(self, file_path):
-        valid_extensions = ['.html', '.css', '.js']  # Add more as needed
-        _, ext = os.path.splitext(file_path)
+        valid_extensions = ['.html', '.css', '.js']   # Add more as needed
+        
+        _, ext = os.path.splitext(file_path) if file_path is not None else (None, None)
         
         if ext in valid_extensions:
             return self.validate_file(file_path)
+        else:
+            return False  # Return False if the extension is not valid
     
     def start_daemon(self):
         while True:
@@ -42,7 +45,7 @@ class Arachne:
         if 'test_command' not in self.config or not isinstance(self.config['test_command'], str):
             return False
         
-        retries = self.config.get('retries', 1)   # default to one retry
+        retries = self.config.get('retries', 1)    # default to one retry
         for _ in range(retries):
             process = subprocess.run(self.config['test_command'], shell=True, capture_output=True)
             if process.returncode == 0:
