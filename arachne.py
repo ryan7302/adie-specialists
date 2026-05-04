@@ -27,3 +27,16 @@ class Arachne:
             if 'documentation' in self.config and isinstance(self.config['documentation'], dict) and 'url' in self.config['documentation']:
                 self.fetch_documentation(self.config['documentation'])
             time.sleep(60)
+            
+    def run_tests(self):
+        if 'test_command' not in self.config or not isinstance(self.config['test_command'], str):
+            return False
+        
+        process = subprocess.run(self.config['test_command'], shell=True, capture_output=True)
+        if process.returncode == 0:
+            print('Tests passed successfully')
+            return True
+        else:
+            print('Failed to run tests', process.returncode)
+            print('Output:', process.stdout, process.stderr)
+            return False
