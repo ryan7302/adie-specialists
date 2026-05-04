@@ -13,7 +13,14 @@ class Arachne:
             return False
         
         _, extension = os.path.splitext(filename)
-        return extension in valid_extensions or self.is_image_file(filename)
+        if extension in valid_extensions or self.is_image_file(filename):
+            if extension == '.html':
+                with open(filename, 'r') as file:
+                    content = file.read()
+                    return '<html>' in content
+            else:
+                return True
+        return False
     
     def is_image_file(self, filename):
         image_extensions = ['.jpg', '.png', '.gif']
@@ -23,7 +30,7 @@ class Arachne:
     def run_tests(self):
         test_command = self.config['test_command']
         for i in range(3):
-            print(f"Running tests with command:   {test_command}  (attempt  {i+1})")
+            print(f"Running tests with command:   {test_command}   (attempt  {i+1})")
             result = subprocess.run(test_command, shell=True)
             if result.returncode == 0:
                 return True
