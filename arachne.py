@@ -9,7 +9,7 @@ class Arachne:
 
     def validate_file(self, filename):
         valid_extensions = ['.html', '.css', '.js', '.jpg', '.png', '.gif']
-        if not os.path.exists(filename):   # Check file existence before extension check
+        if not os.path.exists(filename):    
             return False
         
         _, extension = os.path.splitext(filename)
@@ -17,7 +17,7 @@ class Arachne:
     
     def is_image_file(self, filename):
         image_extensions = ['.jpg', '.png', '.gif']
-        _, extension = os.path.splitext(filename)
+         _, extension = os.path.splitext(filename)
         return extension in image_extensions
         
     def run_tests(self):
@@ -29,9 +29,9 @@ class Arachne:
                 return True
         return False
     
-    def fetch_documentation(self, url):
-        if self.is_valid_url(url):
-            command = f"wget -O documentation.html {url}"
+    def fetch_documentation(self, doc_config):
+        if 'url' in doc_config and self.is_valid_url(doc_config['url']):
+            command = f"wget -O documentation.html {doc_config['url']}"
             print(f"Fetching documentation with command:   {command}")
             subprocess.run(command, shell=True)
     
