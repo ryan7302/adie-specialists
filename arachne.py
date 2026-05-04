@@ -5,7 +5,7 @@ from git_manager import GitManager
 import sys   
 
 class Arachne:
-    def   __init__(self):
+    def __init__(self):
         self.tasks = []
         self.config = {}
         self.llama = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  
@@ -21,32 +21,40 @@ class Arachne:
             
     def run(self):
         for task in self.tasks:
-            files_to_edit  =  self.llama.ask(task)   
-            new_content  = self.llama.generate_code(task, files_to_edit)   
+            files_to_edit  = self.llama.ask(task)   
+            new_content = self.llama.generate_code(task, files_to_edit)   
             
             for file in files_to_edit:
                 if file.endswith('.html') or file.endswith('.css') or file.endswith('.js'):
                     self.git_manager.edit_file(file, new_content)  
             
-            test_command  = 'test command'   
+            test_command = 'test command'   
             os.system(test_command)   
         
-            branch_name  = f"arachne/task-{task}"
+            branch_name = f"arachne/task-{task}"
             
             self.git_manager.create_branch(branch_name)   
             self.git_manager.commit('Update files')   
             
             self.git_manager.push()   
         
-        pull_request  = 'open PR command'    
+        pull_request = 'open PR command'    
         os.system(pull_request)  
     
     def daemon(self):
+        """
+        This method is the entry point for Arachne's continuous operation mode. 
+        In this mode, the `run` function will be continuously called in a loop until an error occurs.
+        """
+        if len(sys.argv) != 2 or sys.argv[1] != 'daemon':
+            print("Usage: python arachne.py daemon")
+            return
+        
         try:
             while True:
                 self.run()
         except Exception as e:
-            print("An error occurred:  ", str(e))
+            print("An error occurred: ", str(e))
             
 if __name__ == "__main__":
     arachne = Arachne()
