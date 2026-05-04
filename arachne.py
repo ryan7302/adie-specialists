@@ -1,65 +1,167 @@
-import os
+#!/usr/bin/env python3
+"""
+Arachne - Web Development Specialist Agent
+"""
+
+import sys
 import json
-from llama import Llama
+import time
+import subprocess
+import re
+from pathlib import Path
+import ollama
 from git_manager import GitManager
-import sys   
+
+MODEL = "deepseek-coder:6.7b-instruct-q4_K_M"  # or from env
 
 class Arachne:
-    def  __init__(self):
-        self.tasks = []
-        self.config = {}
-        self.llama = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  
-        self.git_manager = GitManager()
-        
-    def load_tasks(self, file_name='arachne_tasks.txt'):
-        with open(file_name) as f:
-            self.tasks = [line.rstrip('\n') for line in f]
-            
-    def load_config(self, file_name='arachne_config.json'):
-        with open(file_name) as f:
-            self.config = json.load(f)
-            
-    def run(self):
-        for task in self.tasks:
-            files_to_edit  = self.llama.ask(task)   
-            new_content = self.llama.generate_code(task, files_to_edit)   
-            
-            for file in files_to_edit:
-                if file.endswith('.html') or file.endswith('.css') or file.endswith('.js'):
-                    self.git_manager.edit_file(file, new_content)  
-            
-            test_command = 'test command'   
-            os.system(test_command)   
-        
-            branch_name = f"arachne/task-{task}"
-            
-            self.git_manager.create_branch(branch_name)   
-            self.git_manager.commit('Update files')   
-            
-            self.git_manager.push()   
-        
-        pull_request = 'open PR command'    
-        os.system(pull_request)  
-    
-    def daemon(self):
-        if len(sys.argv) != 2 or sys.argv[1] != 'daemon':
-            print("Usage: python arachne.py daemon")
-            return
-        
+    def __init__(self, config_path="arachne_config.json", tasks_path="arachne_tasks.txt"):
+        self.config_path = config_path
+        self.tasks_path = tasks_path
+        self.config = self.load_config()
+        self.repo = self.config["repo"]
+        self.workspace = Path("./arachne_workspace") / self.repo.replace("/", "_")
+        self.git = None
+
+    def load_config(self):
+        with open(self.config_path) as f:
+            return json.load(f)
+
+    def load_tasks(self):
+        if not Path(self.tasks_path).exists():
+            return []
+        with open(self.tasks_path) as f:
+            return [line.strip() for line in f if line.strip()]
+
+    def remove_task(self, task):
+        tasks = self.load_tasks()
+        if task in tasks:
+            tasks.remove(task)
+            with open(self.tasks_path, "w") as f:
+                for t in tasks:
+                    f.write(t + "\n")
+
+    def clone_or_pull_repo(self):
+        if not (self.workspace / ".git").exists():
+            print(f"Cloning {self.repo}...")
+            clone_url = f"https://github.com/{self.repo}"
+            subprocess.run(["git", "clone", clone_url, str(self.workspace)], check=False)
+        self.git = GitManager(self.workspace)
+        self.git.run_git(["fetch", "origin"])
+        self.git.run_git(["checkout", "main"])
+        self.git.run_git(["pull", "origin", "main"])
+
+    def suggest_files(self, task):
+        tree_result = subprocess.run(
+            ["find", ".", "-type", "f", "-not", "-path", "./.git/*"],
+            cwd=self.workspace, capture_output=True, text=True
+        )
+        tree = tree_result.stdout[:4000]  # limit
+        prompt = (
+            f"Project file tree:\n{tree}\n\n"
+            f"Task: {task}\n\n"
+            "Return ONLY a Python list of relative file paths to edit (e.g., ['index.html', 'style.css']). No other text."
+        )
+        response = ollama.chat(model=MODEL, messages=[{"role":"user","content":prompt}])
+        raw = response['message']['content']
+        # parse list
         try:
-            while True:
-                self.run()
-        except Exception as e:
-            print("An error occurred: ", str(e))
-            
+            import ast
+            files = ast.literal_eval(raw.split("```")[0].strip())
+            if isinstance(files, list):
+                return [f for f in files if isinstance(f, str)]
+        except:
+            pass
+        # fallback: regex
+        matches = re.findall(r'[\w\-/]+\.\w+', raw)
+        return matches[:5]
+
+    def generate_code(self, file_path, current_code, task, error_feedback=None):
+        prompt = (
+            f"File: {file_path}\n\n"
+            f"Current content:\n```\n{current_code}\n```\n\n"
+            f"Task: {task}\n"
+        )
+        if error_feedback:
+            prompt += f"\nPrevious attempt error:\n{error_feedback}\nPlease fix."
+        messages = [
+            {"role":"system","content":"You are a web developer. Output only the complete new file content, no explanations."},
+            {"role":"user","content": prompt}
+        ]
+        response = ollama.chat(model=MODEL, messages=messages)
+        code = response['message']['content']
+        # clean markdown
+        if "```" in code:
+            code = re.sub(r'```\w*\n?', '', code).replace('```', '')
+        return code.strip()
+
+    def process_task(self, task):
+        # Parse @file: directive
+        match = re.match(r'@file:\s*(\S+)', task)
+        if not match:
+            print("No @file: directive, skipping.")
+            return False
+        file_to_edit = match.group(1)
+        clean_task = task[len(match.group(0)):].strip()
+
+        # Determine which files to edit
+        files_to_edit = self.suggest_files(clean_task)
+        if not file_to_edit in files_to_edit:
+            files_to_edit.append(file_to_edit)
+
+        for f in files_to_edit:
+            path = self.workspace / f
+            current = path.read_text() if path.exists() else ""
+            new_code = self.generate_code(f, current, clean_task)
+            if new_code:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(new_code)
+                print(f"Updated {f}")
+
+        # Commit
+        self.git.run_git(["add", "."])
+        self.git.run_git(["commit", "-m", f"arachne: {clean_task[:80]}"])
+        branch = f"arachne/task-{re.sub(r'[^a-z0-9]','-', clean_task.lower())[:20]}-{abs(hash(clean_task)) % 10000:04d}"
+        self.git.run_git(["checkout", "-B", branch])
+        self.git.push_to_github("origin", branch)
+
+        # Create PR
+        subprocess.run([
+            "gh", "pr", "create",
+            "--repo", self.repo,
+            "--title", clean_task[:80],
+            "--body", "Automated by Arachne",
+            "--head", branch
+        ])
+
+        return True
+
+    def run(self):
+        tasks = self.load_tasks()
+        if not tasks:
+            print("No tasks.")
+            return
+        self.clone_or_pull_repo()
+        task = tasks[0]
+        print(f"Processing: {task}")
+        self.process_task(task)
+        self.remove_task(task)
+
+    def daemon(self):
+        print("🕸️ Arachne – Web Specialist (daemon mode)")
+        while True:
+            tasks = self.load_tasks()
+            if tasks:
+                self.clone_or_pull_repo()
+                for task in tasks[:1]:  # one at a time
+                    print(f"Processing: {task}")
+                    self.process_task(task)
+                    self.remove_task(task)
+            time.sleep(60)
+
 if __name__ == "__main__":
-    arachne = Arachne()
-    arachne.load_tasks()
-    arachne.load_config()
-    
-    print("\n\U0001F573" * 2 + "\nArachne is running!\n" + "\U0001F573" * 2)
-    
-    if 'daemon' in sys.argv:
-        arachne.daemon()
+    agent = Arachne()
+    if "daemon" in sys.argv:
+        agent.daemon()
     else:
-        arachne.run()
+        agent.run()
