@@ -20,6 +20,10 @@ class Arachne:
             self.config = json.load(f)
             
     def run(self):
+        """
+        This method handles the execution of a single task. The tasks are defined in `self.tasks`. 
+        It uses Llama to generate code based on the given task and then commits those changes to Git.
+        """
         for task in self.tasks:
             files_to_edit  = self.llama.ask(task)   
             new_content = self.llama.generate_code(task, files_to_edit)   
@@ -45,6 +49,7 @@ class Arachne:
         """
         This method is the entry point for Arachne's continuous operation mode. 
         In this mode, the `run` function will be continuously called in a loop until an error occurs.
+        It checks if 'daemon' argument is provided and handles case when it's not.
         """
         if len(sys.argv) != 2 or sys.argv[1] != 'daemon':
             print("Usage: python arachne.py daemon")
