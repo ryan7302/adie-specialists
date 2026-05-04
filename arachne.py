@@ -4,7 +4,7 @@ import time
 from urllib.parse import urlparse
 
 class Arachne:
-    def __init__(self, config):
+    def  __init__(self, config):
         self.config = config
 
     def validate_file(self, filename):
@@ -42,7 +42,6 @@ class Arachne:
             print(f"Fetching documentation with command:   {command}")
             subprocess.run(command, shell=True)
             
-            # Check if the fetched file is valid using validate_file method
             if not self.validate_file('documentation.html'):
                 print("The downloaded file is not valid.")
     
@@ -56,4 +55,6 @@ class Arachne:
     def start_daemon(self):
         while True:
             self.run_tests()
+            if 'documentation' in self.config and self.config['documentation'] is not None:
+                self.fetch_documentation(self.config['documentation'])
             time.sleep(60)
