@@ -22,6 +22,9 @@ class Arachne:
         else:
             print('Invalid URL format')
         
+    def validate_file(self, file_path):
+        return os.path.isfile(file_path)
+    
     def start_daemon(self):
         while True:
             if 'documentation' in self.config and isinstance(self.config['documentation'], dict) and 'url' in self.config['documentation']:
@@ -32,7 +35,7 @@ class Arachne:
         if 'test_command' not in self.config or not isinstance(self.config['test_command'], str):
             return False
         
-        retries = self.config.get('retries', 1) # default to one retry
+        retries = self.config.get('retries', 1)  # default to one retry
         for _ in range(retries):
             process = subprocess.run(self.config['test_command'], shell=True, capture_output=True)
             if process.returncode == 0:
