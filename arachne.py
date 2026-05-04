@@ -32,11 +32,13 @@ class Arachne:
         if 'test_command' not in self.config or not isinstance(self.config['test_command'], str):
             return False
         
-        process = subprocess.run(self.config['test_command'], shell=True, capture_output=True)
-        if process.returncode == 0:
-            print('Tests passed successfully')
-            return True
-        else:
-            print('Failed to run tests', process.returncode)
-            print('Output:', process.stdout, process.stderr)
-            return False
+        retries = self.config.get('retries', 1) # default to one retry
+        for _ in range(retries):
+            process = subprocess.run(self.config['test_command'], shell=True, capture_output=True)
+            if process.returncode == 0:
+                print('Tests passed successfully')
+                return True
+        
+        print('Failed to run tests', process.returncode)
+        print('Output:', process.stdout, process.stderr)
+        return False
