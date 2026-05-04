@@ -1,6 +1,7 @@
 import subprocess
 import os
 import time
+from urllib.parse import urlparse
 
 class Arachne:
     def __init__(self, config):
@@ -8,10 +9,16 @@ class Arachne:
 
     def validate_file(self, filename):
         valid_extensions = ['.html', '.css', '.js', '.jpg', '.png', '.gif']
-        if not os.path.exists(filename):  # Check file existence before extension check
+        if not os.path.exists(filename):   # Check file existence before extension check
             return False
+        
         _, extension = os.path.splitext(filename)
-        return extension in valid_extensions
+        return extension in valid_extensions or self.is_image_file(filename)
+    
+    def is_image_file(self, filename):
+        image_extensions = ['.jpg', '.png', '.gif']
+        _, extension = os.path.splitext(filename)
+        return extension in image_extensions
         
     def run_tests(self):
         test_command = self.config['test_command']
@@ -23,9 +30,17 @@ class Arachne:
         return False
     
     def fetch_documentation(self, url):
-        command = f"wget -O documentation.html {url}"
-        print(f"Fetching documentation with command:   {command}")
-        subprocess.run(command, shell=True)
+        if self.is_valid_url(url):
+            command = f"wget -O documentation.html {url}"
+            print(f"Fetching documentation with command:   {command}")
+            subprocess.run(command, shell=True)
+    
+    def is_valid_url(self, url):
+        try:
+            result = urlparse(url)
+            return all([result.scheme, result.netloc])
+        except ValueError:
+            return False
         
     def start_daemon(self):
         while True:
