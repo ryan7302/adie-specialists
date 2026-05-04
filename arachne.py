@@ -2,13 +2,13 @@ import os
 import json
 from llama import Llama
 from git_manager import GitManager
-import sys  # added import statement for sys module
+import sys   
 
 class Arachne:
     def __init__(self):
         self.tasks = []
         self.config = {}
-        self.llama = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  # initialize llama with the correct model
+        self.llama = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  
         self.git_manager = GitManager()
         
     def load_tasks(self, file_name='arachne_tasks.txt'):
@@ -21,29 +21,32 @@ class Arachne:
             
     def run(self):
         for task in self.tasks:
-            files_to_edit = self.llama.ask(task)  # ask LLM which files to edit
-            new_content = self.llama.generate_code(task, files_to_edit)  # generate new content using the LLM
+            files_to_edit  = self.llama.ask(task)   
+            new_content = self.llama.generate_code(task, files_to_edit)   
             
             for file in files_to_edit:
                 if file.endswith('.html') or file.endswith('.css') or file.endswith('.js'):
-                    self.git_manager.edit_file(file, new_content)  # edit the file with new content
+                    self.git_manager.edit_file(file, new_content)  
             
-            test_command = 'test command'  # get the test command (replace with actual implementation)
-            os.system(test_command)  # run the test command
+            test_command = 'test command'   
+            os.system(test_command)   
         
             branch_name = f"arachne/task-{task}"
             
-            self.git_manager.create_branch(branch_name)  # create a new branch
-            self.git_manager.commit('Update files')  # commit changes to this branch
+            self.git_manager.create_branch(branch_name)   
+            self.git_manager.commit('Update files')   
             
-            self.git_manager.push()  # push the changes
+            self.git_manager.push()   
         
-        pull_request = 'open PR command'  # get the command to open a pull request (replace with actual implementation)
-        os.system(pull_request)  # run the command to open a pull request
+        pull_request = 'open PR command'    
+        os.system(pull_request)  
     
     def daemon(self):
-        while True:
-            self.run()
+        try:
+            while True:
+                self.run()
+        except Exception as e:
+            print("An error occurred: ", str(e))
             
 if __name__ == "__main__":
     arachne = Arachne()
