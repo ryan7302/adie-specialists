@@ -17,7 +17,7 @@ class Arachne:
     
     def is_image_file(self, filename):
         image_extensions = ['.jpg', '.png', '.gif']
-         _, extension = os.path.splitext(filename)
+        extension = os.path.splitext(filename)[1]
         return extension in image_extensions
         
     def run_tests(self):
