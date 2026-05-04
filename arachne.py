@@ -26,20 +26,22 @@ class Arachne:
         return os.path.isfile(file_path) if file_path is not None else False
     
     def validate_web_file(self, file_path):
-        valid_extensions = ['.html', '.css', '.js']   # Add more as needed
+        # Return False when file_path is None to prevent potential errors and improve code robustness
+        if file_path is None:
+            return False
         
-        if self.validate_file(file_path):    # Check if the file exists before getting its extension
-             _, ext = os.path.splitext(file_path)
+        valid_extensions = ['.html', '.css', '.js']    # Add more as needed
+        _, ext = os.path.splitext(file_path)
             
-            if ext in valid_extensions:
-                return True
+        if ext in valid_extensions:
+            return True
     
     def start_daemon(self):
         while True:
             try:
                 if 'documentation' in self.config and isinstance(self.config['documentation'], dict) and 'url' in self.config['documentation']:
                     self.fetch_documentation(self.config['documentation'])
-                    self.run_tests() # Added this line to call the test method after fetching documentation
+                    self.run_tests()  # Added this line to call the test method after fetching documentation
             except Exception as e:
                 print("An error occurred: ", str(e)) 
             
@@ -49,7 +51,7 @@ class Arachne:
         if 'test_command' not in self.config or not isinstance(self.config['test_command'], str):
             return False
         
-        retries = self.config.get('retries', 1)   # default to one retry
+        retries = self.config.get('retries', 1)    # default to one retry
         for _ in range(retries):
             process = subprocess.run(self.config['test_command'], shell=True, capture_output=True)
             if process.returncode == 0:
