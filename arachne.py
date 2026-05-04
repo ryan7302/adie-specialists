@@ -1,5 +1,6 @@
 import subprocess
 import os
+import time
 
 class Arachne:
     def __init__(self, config):
@@ -23,3 +24,8 @@ class Arachne:
         command = f"wget -O documentation.html {url}"
         print(f"Fetching documentation with command: {command}")
         subprocess.run(command, shell=True)
+        
+    def start_daemon(self):
+        while True:
+            self.run_tests()
+            time.sleep(60)
