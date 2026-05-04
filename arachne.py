@@ -10,4 +10,5 @@ class Arachne:
         return True if result.returncode == 0 else False
       
     def handle_test_commands(self):
-        pass  # Implement your code here
+        if "test_commands" in self.config:
+            # Add your code here
