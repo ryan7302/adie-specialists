@@ -8,3 +8,6 @@ class Arachne:
         command = self.config['test_command']
         result = subprocess.run(command, shell=True)
         return True if result.returncode == 0 else False
+      
+    def handle_test_commands(self):
+        pass  # Implement your code here
