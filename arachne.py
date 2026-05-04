@@ -6,15 +6,15 @@ import sys
 import subprocess
 
 class Arachne:
-    def __init__(self):
-        self.tasks = []
+    def  __init__(self):
+        self.tasks  = []
         self.config = {}
-        self.llama = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  
+        self.llama  = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  
         self.git_manager = GitManager()
         
     def load_tasks(self, file_name='arachne_tasks.txt'):
         with open(file_name) as f:
-            self.tasks = [line.rstrip('\n') for line in f]
+            self.tasks  = [line.rstrip('\n') for line in f]
             
     def load_config(self, file_name='arachne_config.json'):
         with open(file_name) as f:
@@ -59,9 +59,7 @@ class Arachne:
         pull_request = 'open PR command'    
         os.system(pull_request) 
         
-        # Added this line to handle test commands
         self.handle_test_commands()  
-        # New method run_tests added here
         return self.run_tests()
             
     def daemon(self):
