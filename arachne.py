@@ -30,7 +30,7 @@ class Arachne:
     def run_tests(self):
         test_command = self.config['test_command']
         for i in range(3):
-            print(f"Running tests with command:   {test_command}   (attempt  {i+1})")
+            print(f"Running tests with command:   {test_command}  (attempt  {i+1})")
             result = subprocess.run(test_command, shell=True)
             if result.returncode == 0:
                 return True
@@ -41,6 +41,10 @@ class Arachne:
             command = f"wget -O documentation.html {doc_config['url']}"
             print(f"Fetching documentation with command:   {command}")
             subprocess.run(command, shell=True)
+            
+            # Check if the fetched file is valid using validate_file method
+            if not self.validate_file('documentation.html'):
+                print("The downloaded file is not valid.")
     
     def is_valid_url(self, url):
         try:
