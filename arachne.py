@@ -6,7 +6,7 @@ import sys
 import subprocess
 
 class Arachne:
-    def   __init__(self):
+    def    __init__(self):
         self.tasks = []
         self.config = {}
         self.llama = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  
@@ -26,11 +26,11 @@ class Arachne:
                 try:
                     subprocess.run(test, shell=True, check=True)
                 except subprocess.CalledProcessError as error:
-                    print(f"Test command {test} failed with error: {error}")
+                    print(f"Test command  {test} failed with error: {error}")
     
     def run(self):
         for task in self.tasks:
-            files_to_edit  = self.llama.ask(task)   
+            files_to_edit  =  self.llama.ask(task)   
             new_content = self.llama.generate_code(task, files_to_edit)   
             
             for file in files_to_edit:
@@ -40,14 +40,14 @@ class Arachne:
             test_command = 'test command'   
             os.system(test_command) 
         
-            branch_name = f"arachne/task-{task}"
+            branch_name  = f"arachne/task-{task}"
             
             self.git_manager.create_branch(branch_name)   
             self.git_manager.commit('Update files')   
             
             self.git_manager.push()   
         
-        pull_request = 'open PR command'    
+        pull_request  = 'open PR command'    
         os.system(pull_request) 
         self.handle_test_commands()   # Added this line to handle test commands
     
