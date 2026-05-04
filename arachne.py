@@ -3,9 +3,10 @@ import json
 from llama import Llama
 from git_manager import GitManager
 import sys   
+import subprocess
 
 class Arachne:
-    def  __init__(self):
+    def   __init__(self):
         self.tasks = []
         self.config = {}
         self.llama = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  
@@ -18,7 +19,15 @@ class Arachne:
     def load_config(self, file_name='arachne_config.json'):
         with open(file_name) as f:
             self.config = json.load(f)
-            
+    
+    def handle_test_commands(self):
+        if 'tests' in self.config:
+            for test in self.config['tests']:
+                try:
+                    subprocess.run(test, shell=True, check=True)
+                except subprocess.CalledProcessError as error:
+                    print(f"Test command {test} failed with error: {error}")
+    
     def run(self):
         for task in self.tasks:
             files_to_edit  = self.llama.ask(task)   
@@ -29,7 +38,7 @@ class Arachne:
                     self.git_manager.edit_file(file, new_content)  
             
             test_command = 'test command'   
-            os.system(test_command)   
+            os.system(test_command) 
         
             branch_name = f"arachne/task-{task}"
             
@@ -39,7 +48,8 @@ class Arachne:
             self.git_manager.push()   
         
         pull_request = 'open PR command'    
-        os.system(pull_request)  
+        os.system(pull_request) 
+        self.handle_test_commands()   # Added this line to handle test commands
     
     def daemon(self):
         if len(sys.argv) != 2 or sys.argv[1] != 'daemon':
