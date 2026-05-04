@@ -28,9 +28,18 @@ class Arachne:
                 except subprocess.CalledProcessError as error:
                     print(f"Test command {test} failed with error: {error}")
     
+    def run_tests(self):
+        if 'test_command' in self.config:
+            try:
+                result = subprocess.run(self.config['test_command'], shell=True, check=True)
+                return True if result.returncode == 0 else False
+            except subprocess.CalledProcessError as error:
+                print(f"Test command {self.config['test_command']} failed with error: {error}")
+        return False
+    
     def run(self):
         for task in self.tasks:
-            files_to_edit = self.llama.ask(task)   
+            files_to_edit  = self.llama.ask(task)   
             new_content = self.llama.generate_code(task, files_to_edit)   
             
             for file in files_to_edit:
@@ -51,8 +60,10 @@ class Arachne:
         os.system(pull_request) 
         
         # Added this line to handle test commands
-        self.handle_test_commands()   
-    
+        self.handle_test_commands()  
+        # New method run_tests added here
+        return self.run_tests()
+            
     def daemon(self):
         if len(sys.argv) != 2 or sys.argv[1] != 'daemon':
             print("Usage: python arachne.py daemon")
