@@ -1,11 +1,12 @@
 import subprocess
+import os
 
 class Arachne:
-    def __init__(self, config):
+    def  __init__(self, config):
         self.config = config
 
     def validate_file(self, filename):
-        valid_extensions = ['.html', '.css', '.js']
+        valid_extensions  = ['.html', '.css', '.js']
         _, extension = os.path.splitext(filename)
         return extension in valid_extensions
         
