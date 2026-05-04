@@ -5,7 +5,7 @@ from git_manager import GitManager
 import sys   
 
 class Arachne:
-    def __init__(self):
+    def  __init__(self):
         self.tasks = []
         self.config = {}
         self.llama = Llama(model='deepseek-coder:6.7b-instruct-q4_K_M')  
@@ -55,5 +55,5 @@ if __name__ == "__main__":
     
     print("\n\U0001F573" * 2 + "\nArachne is running!\n" + "\U0001F573" * 2)
     
-    if 'daemon' in sys.argv:
-        arachne.daemon()
+    if 'daemon' not in sys.argv:
+        arachne.run()
