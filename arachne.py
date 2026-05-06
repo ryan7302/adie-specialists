@@ -31,3 +31,8 @@ def validate_file(self, filename):
         return True
     else:
         return False
+
+def fetch_documentation(self, url):
+    command = 'curl -o documentation.html {}'.format(url)
+    process = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return process.returncode == 0
