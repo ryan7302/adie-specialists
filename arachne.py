@@ -25,7 +25,7 @@ class Arachne:
     def validate_file(self, file_path):
         return os.path.isfile(file_path) if file_path is not None else False
     
-    def validate_web_url(self, url):  # Added method to check valid web url
+    def validate_web_url(self, url):
         parsed_url = urlparse(url)
         return all([parsed_url.scheme, parsed_url.netloc])
     
@@ -37,7 +37,7 @@ class Arachne:
            ('retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1):
             return False
         
-        if 'retries' in self.config and self.config['retries'] > 10:   # Added check for retries to be less than 10
+        if 'retries' in self.config and self.config['retries'] > 10:
             return False
         
         return True   
@@ -62,7 +62,7 @@ class Arachne:
         if 'test_command' not in self.config or not isinstance(self.config['test_command'], str):
             return False
         
-        retries = self.config.get('retries', 1)   # default to one retry
+        retries = self.config.get('retries', 1)
         for _ in range(retries):
             process = subprocess.run(self.config['test_command'], shell=True, capture_output=True)
             if process.returncode == 0:
@@ -72,3 +72,10 @@ class Arachne:
         print('Failed to run tests', process.returncode)
         print('Output:', process.stdout, process.stderr)
         return False
+    
+    def validate_web_file(self, file_path):  # New method
+        if not self.validate_web_url(file_path) and not self.validate_file(file_path):
+            print('Invalid URL format')
+            return False
+        
+        return True
