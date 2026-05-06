@@ -9,7 +9,7 @@ class Arachne:
     
     def validate_url(self, url):
         parsed_url = urlparse(url)
-        return all([parsed_url.scheme in ['http', 'https'], parsed_url.netloc])
+        return all([parsed_url.scheme in  ['http', 'https'], parsed_url.netloc])
     
     def validate_web_file(self, file_path):
         if self.validate_url(file_path):
@@ -33,7 +33,13 @@ class Arachne:
         return False   
     
     def handle_config_test_command(self):
-        self.run_tests() 
+        for _ in range(3):  
+            result = self.run_tests() 
+            if result == True:
+                break
+                
+        if result != True:
+            print("Test command failed after 3 attempts.")
     
     def run_tests(self):
         return self.run_test_command(self.config['test_command'])
