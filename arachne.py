@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import requests
 
 class Arachne:
-    def  __init__(self, config):
+    def __init__(self, config):
         self.config = config
     
     def fetch_documentation(self, documentation_config):
@@ -26,7 +26,7 @@ class Arachne:
         return os.path.isfile(file_path) if file_path is not None else False
     
     def validate_web_file(self, file_path):
-        if file_path is None:  # check for None before getting the extension
+        if file_path is None:   # check for None before getting the extension
             return False
         
         valid_extensions  = ['.html', '.css', '.js']  
@@ -38,6 +38,9 @@ class Arachne:
     def start_daemon(self):
         while True:
             try:
+                if 'stop_daemon' in self.config and self.config['stop_daemon'] == True:
+                    break
+                
                 if 'documentation' in self.config and isinstance(self.config['documentation'], dict) and 'url' in self.config['documentation']:
                     self.fetch_documentation(self.config['documentation'])
                     self.run_tests()  
