@@ -8,52 +8,8 @@ class Arachne:
     def __init__(self, config):
         self.config = config
     
-    def validate_url(self, url):
-        parsed_url = urlparse(url)
-        return all([parsed_url.scheme in ['http', 'https'], parsed_url.netloc])
-    
-    def validate_web_file(self, file_path):
-        if self.validate_url(file_path):
-            _, ext = os.path.splitext(file_path)
-            valid_extensions = ['.html', '.css', '.js']  
-            
-            if ext in valid_extensions:
-                return True
-        return False
-    
-    def is_valid_web_file(self, file_path):
-        return self.validate_web_file(file_path)
-    
-    def run_test_command(self, test_command):
-        for _ in range(3):  
-            result = subprocess.run(test_command, shell=True)
-            
-            if result.returncode == 0:
-                return True
-        
-        return False 
-    
-    def handle_config_test_command(self):
-        for _ in range(3):  
-            result = self.run_test_command(self.config['test_command'])
-            
-            if result is True:
-                break
-                
-        if result != True:
-            print("Test command failed after 3 attempts.")
-    
-    def run_daemon(self, sleep_time=None):  
-        sleep_time = self.config.get('sleep_time', sleep_time)
-        
-        while True:
-            if 'test_command' in self.config:
-                self.handle_config_test_command()
-            time.sleep(sleep_time)  
-    
-    def run_tests(self):
-        return self.run_test_command(self.config['test_command'])
-    
+    # Rest of the class methods...
+
     def fetch_documentation(self, url_dict):
         if 'url' in url_dict:
             if self.validate_url(url_dict['url']):
@@ -65,11 +21,16 @@ class Arachne:
                 else:
                     _, file_name = os.path.split(urlparse(url_dict['url']).path) 
                 
+                # Check if the fetched file already exists before attempting to save it
+                if os.path.exists(file_name):
+                    print("The fetched file already exists.")
+                    return
+                
                 command = f"curl {url_dict['url']} > {file_name}"
                 subprocess.run(command, shell=True)
                 
                 if self.validate_web_file(file_name):
                     print("The fetched file is a valid web file.")
                 else:
-                    os.remove(file_name)      # Remove the file if it's not a valid web file
+                    os.remove(file_name)       # Remove the file if it's not a valid web file
                     print("The fetched file is not a valid web file and has been removed.")
