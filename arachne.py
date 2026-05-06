@@ -1,9 +1,11 @@
+import subprocess
+
 def validate_config(self):
     if 'daemon_interval' not in self.config or (isinstance(self.config['daemon_interval'], int) and self.config['daemon_interval'] > 0):
         return False
     
     if ('test_command' not in self.config or not isinstance(self.config['test_command'], str)) or \
-       ('retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1):
+        ('retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1):
         return False
     
     if 'retries' in self.config and (not isinstance(self.config['test_command'], str) or len(self.config['test_command'].strip()) == 0):
@@ -13,3 +15,10 @@ def validate_config(self):
         return False
     
     return True
+
+def run_tests(self):
+    for _ in range(self.config['retries']):
+        process = subprocess.run(self.config['test_command'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if process.returncode == 0:
+            return True
+    return False
