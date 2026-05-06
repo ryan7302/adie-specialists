@@ -1,81 +1,15 @@
-import subprocess
-import os
-import time
-from urllib.parse import urlparse
-import requests
-
-class Arachne:
-    def __init__(self, config):
-        self.config = config
-    
-    def fetch_documentation(self, documentation_config):
-        if 'url' not in documentation_config or not isinstance(documentation_config['url'], str):
-            return
-        
-        url = urlparse(documentation_config['url'])
-        if all([url.scheme, url.netloc]):
-            response = requests.get(documentation_config['url'])
-            if response.status_code == 200:
-                print('Documentation downloaded successfully')
-            else:
-                print('Failed to download documentation', response.status_code)
-        else:
-            print('Invalid URL format')
-        
-    def validate_web_file(self, file_path):   # Replaced this method
-        if not self.validate_web_url(file_path) and not self.validate_file(file_path):
-            print('Invalid URL format')
-            return False
-        
-        return True
-    
-    def validate_file(self, file_path):
-        return os.path.isfile(file_path) if file_path is not None else False
-    
-    def validate_web_url(self, url):
-        parsed_url = urlparse(url)
-        return all([parsed_url.scheme, parsed_url.netloc])
-    
-    def validate_config(self):
-        if 'daemon_interval' not in self.config or (isinstance(self.config['daemon_interval'], int) and self.config['daemon_interval'] > 0):
-            return False
-        
-        if ('test_command' not in self.config or not isinstance(self.config['test_command'], str)) or \
-           ('retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1):
-            return False
-        
-        if 'retries' in self.config and self.config['retries'] > 10:
-            return False
-        
-        return True   
-    
-    def start_daemon(self):
-        while True:
-            try:
-                if 'documentation' in self.config and isinstance(self.config['documentation'], dict) and 'url' in self.config['documentation']:
-                    self.fetch_documentation(self.config['documentation'])
-                    
-                    if self.validate_config():
-                        self.run_tests()  
-            except Exception as e:
-                print("An error occurred: ", str(e)) 
-            
-            if 'daemon_interval' in self.config and isinstance(self.config['daemon_interval'], int) and self.config['daemon_interval'] > 0:
-                time.sleep(self.config['daemon_interval'])
-            else:
-                time.sleep(60)
-    
-    def run_tests(self):
-        if 'test_command' not in self.config or not isinstance(self.config['test_command'], str):
-            return False
-        
-        retries = self.config.get('retries', 1)
-        for _ in range(retries):
-            process = subprocess.run(self.config['test_command'], shell=True, capture_output=True)
-            if process.returncode == 0:
-                print('Tests passed successfully')
-                return True
-        
-        print('Failed to run tests', process.returncode)
-        print('Output:', process.stdout, process.stderr)
+def validate_config(self):
+    if 'daemon_interval' not in self.config or (isinstance(self.config['daemon_interval'], int) and self.config['daemon_interval'] > 0):
         return False
+    
+    if ('test_command' not in self.config or not isinstance(self.config['test_command'], str)) or \
+       ('retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1):
+        return False
+    
+    if 'retries' in self.config and (not isinstance(self.config['test_command'], str) or len(self.config['test_command'].strip()) == 0):
+        return False
+        
+    if 'test_command' in self.config and (not isinstance(self.config['retries'], int) or not 1 <= self.config['retries'] <= 10):
+        return False
+    
+    return True
