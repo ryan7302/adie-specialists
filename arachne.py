@@ -59,3 +59,9 @@ class Arachne:
                 return False
             
         return True
+    
+    def start_daemon(self):
+        if self.validate_config():
+            while True:
+                self.retry_tests()
+                time.sleep(self.config['daemon_interval'])
