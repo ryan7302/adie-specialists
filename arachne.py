@@ -41,5 +41,6 @@ class Arachne:
     def fetch_documentation(self, url_dict):
         file_name = 'documentation.html'
         if 'url' in url_dict:
-            command = f"curl {url_dict['url']} > {file_name}"
-            subprocess.run(command, shell=True)
+            if self.validate_url(url_dict['url']):
+                command = f"curl {url_dict['url']} > {file_name}"
+                subprocess.run(command, shell=True)
