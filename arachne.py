@@ -10,7 +10,7 @@ class Arachne:
     
     def validate_url(self, url):
         parsed_url = urlparse(url)
-        return all([parsed_url.scheme in ['http', 'https'], parsed_url.netloc])
+        return all([parsed_url.scheme in  ['http', 'https'], parsed_url.netloc])
     
     def validate_web_file(self, file_path):
         if self.validate_url(file_path):
@@ -35,7 +35,8 @@ class Arachne:
     
     def handle_config_test_command(self):
         for _ in range(3):  
-            result = self.run_tests() 
+            result = self.run_test_command(self.config['test_command'])
+            
             if result == True:
                 break
                 
@@ -45,7 +46,7 @@ class Arachne:
     def run_daemon(self):
         while True:
             self.handle_config_test_command()
-            time.sleep(5)  # Wait for 5 seconds before next call
+            time.sleep(5)   # Wait for 5 seconds before next call
     
     def run_tests(self):
         return self.run_test_command(self.config['test_command'])
@@ -55,7 +56,7 @@ class Arachne:
             if self.validate_url(url_dict['url']):
                 _, file_ext = os.path.splitext(urlparse(url_dict['url']).path)
                 
-                if not file_ext or file_ext == '.':  # Checking if there is no extension or the file has no extension
+                if not file_ext or file_ext == '.':   # Checking if there is no extension or the file has no extension
                     url_hash = hashlib.md5(url_dict['url'].encode('utf-8')).hexdigest() 
                     file_name = f"{url_hash}.html"  
                 else:
