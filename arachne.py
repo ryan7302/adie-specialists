@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 import os
 import subprocess
+import hashlib
 
 class Arachne:
     def __init__(self, config):
@@ -9,7 +10,7 @@ class Arachne:
     
     def validate_url(self, url):
         parsed_url = urlparse(url)
-        return all([parsed_url.scheme in  ['http', 'https'], parsed_url.netloc])
+        return all([parsed_url.scheme in ['http', 'https'], parsed_url.netloc])
     
     def validate_web_file(self, file_path):
         if self.validate_url(file_path):
@@ -45,8 +46,15 @@ class Arachne:
         return self.run_test_command(self.config['test_command'])
     
     def fetch_documentation(self, url_dict):
-        file_name = 'documentation.html'
         if 'url' in url_dict:
             if self.validate_url(url_dict['url']):
+                _, file_ext = os.path.splitext(urlparse(url_dict['url']).path)
+                
+                if not file_ext or file_ext == '.': # Checking if there is no extension or the file has no extension
+                    url_hash = hashlib.md5(url_dict['url'].encode('utf-8')).hexdigest() 
+                    file_name = f"{url_hash}.html"  
+                else:
+                    _, file_name = os.path.split(urlparse(url_dict['url']).path) 
+                
                 command = f"curl {url_dict['url']} > {file_name}"
                 subprocess.run(command, shell=True)
