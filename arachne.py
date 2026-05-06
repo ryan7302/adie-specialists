@@ -7,7 +7,7 @@ class Arachne:
         url = urlparse(file_path)
         
         # Check for valid URL scheme and netloc
-        if all([url.scheme in ['http', 'https'], url.netloc]):
+        if all([url.scheme in  ['http', 'https'], url.netloc]):
             _, ext = os.path.splitext(file_path)
             valid_extensions = ['.html', '.css', '.js']  
             
@@ -25,3 +25,6 @@ class Arachne:
             return True
         else:
             return False
+            
+    def run_tests(self):
+        return self.run_test_command(self.config['test_command'])
