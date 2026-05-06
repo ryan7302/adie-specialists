@@ -46,7 +46,13 @@ class Arachne:
                 
                 if 'documentation' in self.config and isinstance(self.config['documentation'], dict) and 'url' in self.config['documentation']:
                     self.fetch_documentation(self.config['documentation'])
-                    self.run_tests()  
+                    
+                    # Check file validation before running tests
+                    test_file = self.config.get('test_file', None)
+                    if test_file is not None:
+                        is_url = urlparse(test_file).scheme != ''
+                        if (is_url and self.validate_web_file(test_file)) or (not is_url and self.validate_file(test_file)):
+                            self.run_tests()  
             except Exception as e:
                 print("An error occurred: ", str(e)) 
             
