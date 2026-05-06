@@ -10,7 +10,7 @@ class Arachne:
     
     def validate_url(self, url):
         parsed_url = urlparse(url)
-        return all([parsed_url.scheme in  ['http', 'https'], parsed_url.netloc])
+        return all([parsed_url.scheme in ['http', 'https'], parsed_url.netloc])
     
     def validate_web_file(self, file_path):
         if self.validate_url(file_path):
@@ -68,4 +68,5 @@ class Arachne:
                 if self.validate_web_file(file_name):
                     print("The fetched file is a valid web file.")
                 else:
-                    print("The fetched file is not a valid web file.")
+                    os.remove(file_name)  # Remove the file if it's not a valid web file
+                    print("The fetched file is not a valid web file and has been removed.")
