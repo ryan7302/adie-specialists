@@ -5,7 +5,7 @@ import subprocess
 class Arachne:
     def __init__(self, config):
         self.config = config
-        self.handle_config_test_command()   # Initiate test command handling
+        self.handle_config_test_command()  
     
     def validate_url(self, url):
         parsed_url = urlparse(url)
@@ -24,21 +24,22 @@ class Arachne:
         return self.validate_web_file(file_path)
     
     def run_test_command(self, test_command):
-        for _ in range(3):   # Attempt running the command up to 3 times
+        for _ in range(3):  
             result = subprocess.run(test_command, shell=True)
             
             if result.returncode == 0:
                 return True
         
-        return False   # Command failed after three attempts
+        return False   
     
     def handle_config_test_command(self):
-        self.run_tests()   # Retry the test command up to 3 times if it fails
+        self.run_tests() 
     
     def run_tests(self):
         return self.run_test_command(self.config['test_command'])
     
-    def fetch_documentation(self, url):
+    def fetch_documentation(self, url_dict):
         file_name = 'documentation.html'
-        command = f"curl {url} > {file_name}"
-        subprocess.run(command, shell=True)
+        if 'url' in url_dict:
+            command = f"curl {url_dict['url']} > {file_name}"
+            subprocess.run(command, shell=True)
