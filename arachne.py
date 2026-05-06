@@ -62,6 +62,9 @@ class Arachne:
     
     def start_daemon(self):
         if self.validate_config():
-            while True:
-                self.retry_tests()
-                time.sleep(self.config['daemon_interval'])
+            if 'daemon_interval' in self.config and isinstance(self.config['daemon_interval'], int) and self.config['daemon_interval'] > 0:
+                while True:
+                    self.retry_tests()
+                    time.sleep(self.config['daemon_interval'])
+            else:
+                print("Invalid configuration, 'daemon_interval' must be a positive integer.")
