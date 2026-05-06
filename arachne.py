@@ -71,4 +71,7 @@ class Arachne:
         
         print('Failed to run tests', process.returncode)
         print('Output:', process.stdout, process.stderr)
-        return False
+        
+        retry_on_failure = self.config.get('retry_on_test_failure', False)    
+        if retry_on_failure:
+            return True  # continue daemon execution on failure
