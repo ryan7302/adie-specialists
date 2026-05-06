@@ -40,6 +40,9 @@ class Arachne():
         return process.returncode == 0
     
     def daemon_start(self):
+        if not self.validate_config():
+            raise Exception('Invalid configuration')
+            
         while True:
             if self.run_tests():
                 time.sleep(self.config['daemon_interval'])
