@@ -26,12 +26,15 @@ class Arachne:
         return os.path.isfile(file_path) if file_path is not None else False
     
     def validate_web_file(self, file_path):
-        if file_path is None:   # check for None before getting the extension
-            return False
+        url = urlparse(file_path)
         
-        valid_extensions  = ['.html', '.css', '.js']  
-        _, ext = os.path.splitext(file_path)
+        # Check for valid URL scheme and netloc
+        if all([url.scheme, url.netloc]):
+            return self.validate_file(file_path)
             
+        _, ext = os.path.splitext(file_path)
+        valid_extensions  = ['.html', '.css', '.js']  
+        
         if ext in valid_extensions:
             return True
     
