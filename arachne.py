@@ -14,12 +14,9 @@ class Arachne():
            ('retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1):
             return False
         
-        if 'retries' in self.config and (not isinstance(self.config['test_command'], str) or len(self.config['test_command'].strip()) == 0):
+        if 'url' not in self.config:
             return False
             
-        if 'test_command' in self.config and (not isinstance(self.config['retries'], int) or not 1 <= self.config['retries'] <= 10):
-            return False
-    
         return True
         
     def run_tests(self):
