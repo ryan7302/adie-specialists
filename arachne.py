@@ -12,7 +12,7 @@ class Arachne():
             raise ValueError("Invalid configuration: ‘daemon_interval’ must be an integer greater than 0")
     
         if 'test_command' not in self.config or not isinstance(self.config['test_command'], str) or \
-                'retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1:
+                 'retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1:
             return False
         
         if 'url' not in self.config or not (isinstance(self.config['url'], str) and (self.config['url'].startswith('http://') or self.config['url'].startswith('https://'))):
@@ -28,7 +28,7 @@ class Arachne():
             return False
     
     def validate_file(self, filename):
-        return os.path.isfile(filename)
+        return os.path.isfile(filename) and os.path.splitext(filename)[1] in ['.html', '.css', '.js']
     
     def validate_url(self):
         url = self.config['url']
