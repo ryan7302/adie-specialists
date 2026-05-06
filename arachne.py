@@ -5,11 +5,12 @@ import subprocess
 class Arachne:
     def __init__(self, config):
         self.config = config
-        
+        self.handle_config_test_command()  # Initiate test command handling
+    
     def validate_web_file(self, file_path):
         url = urlparse(file_path)
         
-        if all([url.scheme in  ['http', 'https'], url.netloc]):
+        if all([url.scheme in ['http', 'https'], url.netloc]):
             _, ext = os.path.splitext(file_path)
             valid_extensions = ['.html', '.css', '.js']  
             
@@ -27,8 +28,11 @@ class Arachne:
             if result.returncode == 0:
                 return True
         
-        return False    # Command failed after three attempts
-            
+        return False  # Command failed after three attempts
+    
+    def handle_config_test_command(self):
+        self.run_tests()  # Retry the test command up to 3 times if it fails
+    
     def run_tests(self):
         return self.run_test_command(self.config['test_command'])
     
