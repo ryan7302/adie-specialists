@@ -19,13 +19,13 @@ class Arachne:
     def fetch_documentation(self, url_dict):
         if 'url' in url_dict:
             if self.validate_url(url_dict['url']):
-                 _, file_ext = os.path.splitext(urlparse(url_dict['url']).path)
+                _, file_ext = os.path.splitext(urlparse(url_dict['url']).path)
                 
                 if not file_ext or file_ext == '.':  
                     url_hash = hashlib.md5(url_dict['url'].encode('utf-8')).hexdigest() 
                     file_name = f"{url_hash}.html"  
                 else:
-                     _, file_name = os.path.split(urlparse(url_dict['url']).path) 
+                    _, file_name = os.path.split(urlparse(url_dict['url']).path) 
                 
                 if os.path.exists(file_name):
                     print("The fetched file already exists.")
@@ -50,3 +50,12 @@ class Arachne:
                 return True
             time.sleep(self.config['retry_delay'])
         return False
+    
+    def validate_config(self):
+        required_keys = ['test_command', 'max_retries', 'retry_delay']
+        
+        for key in required_keys:
+            if key not in self.config or not isinstance(self.config[key], (int, str)) or self.config[key] < 0:
+                return False
+            
+        return True
