@@ -30,7 +30,7 @@ class Arachne:
         
         # Check for valid URL scheme and netloc
         if all([url.scheme, url.netloc]):
-            return self.validate_file(file_path)
+            return True
             
         _, ext = os.path.splitext(file_path)
         valid_extensions  = ['.html', '.css', '.js']  
