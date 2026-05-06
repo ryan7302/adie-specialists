@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import requests
 
 class Arachne:
-    def  __init__(self, config):
+    def   __init__(self, config):
         self.config = config
     
     def fetch_documentation(self, documentation_config):
@@ -26,10 +26,10 @@ class Arachne:
         return os.path.isfile(file_path) if file_path is not None else False
     
     def validate_web_file(self, file_path):
-        valid_extensions = ['.html', '.css', '.js']  # Add more as needed
+        valid_extensions = ['.html', '.css', '.js']   # Add more as needed
         
-        if self.validate_file(file_path):   # Check if the file exists before getting its extension
-            _, ext = os.path.splitext(file_path)
+        if self.validate_file(file_path):    # Check if the file exists before getting its extension
+             _, ext = os.path.splitext(file_path)
             
             if ext in valid_extensions:
                 return True
@@ -38,22 +38,22 @@ class Arachne:
         if 'daemon_interval' not in self.config or (isinstance(self.config['daemon_interval'], int) and self.config['daemon_interval'] > 0):
             return False
         
-        # Added checks for 'test_command' and 'retries'
+        # Added checks for 'test_command' and 
         if ('test_command' not in self.config or not isinstance(self.config['test_command'], str)) or (
                 'retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1):
             return False
         
-        if 'retries' in self.config and self.config['retries'] > 10:    # Added check for retries to be less than 10
+        if 'retries' in self.config and self.config['retries'] > 10:     # Added check for retries to be less than 10
             return False
         
-        return True   # Return True if all checks pass
+        return True    # Return True if all checks pass
     
     def start_daemon(self):
         while True:
             try:
                 if 'documentation' in self.config and isinstance(self.config['documentation'], dict) and 'url' in self.config['documentation']:
                     self.fetch_documentation(self.config['documentation'])
-                    self.run_tests()    # Added this line to call the test method after fetching documentation
+                    self.run_tests()     # Added this line to call the test method after fetching documentation
             except Exception as e:
                 print("An error occurred: ", str(e)) 
             
@@ -66,7 +66,7 @@ class Arachne:
         if 'test_command' not in self.config or not isinstance(self.config['test_command'], str):
             return False
         
-        retries = self.config.get('retries', 1)   # default to one retry
+        retries = self.config.get('retries', 1)    # default to one retry
         for _ in range(retries):
             process = subprocess.run(self.config['test_command'], shell=True, capture_output=True)
             if process.returncode == 0:
