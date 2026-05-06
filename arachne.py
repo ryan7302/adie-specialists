@@ -10,7 +10,7 @@ class Arachne:
     
     def validate_url(self, url):
         parsed_url = urlparse(url)
-        return all([parsed_url.scheme in ['http', 'https'], parsed_url.netloc])
+        return all([parsed_url.scheme in  ['http', 'https'], parsed_url.netloc])
     
     def validate_web_file(self, file_path):
         if self.validate_url(file_path):
@@ -43,10 +43,10 @@ class Arachne:
         if result != True:
             print("Test command failed after 3 attempts.")
     
-    def run_daemon(self):
+    def run_daemon(self, sleep_time=5): # New parameter added here for flexibility in the daemon execution interval
         while True:
             self.handle_config_test_command()
-            time.sleep(5)  
+            time.sleep(sleep_time)  
     
     def run_tests(self):
         return self.run_test_command(self.config['test_command'])
@@ -68,5 +68,5 @@ class Arachne:
                 if self.validate_web_file(file_name):
                     print("The fetched file is a valid web file.")
                 else:
-                    os.remove(file_name)  # Remove the file if it's not a valid web file
+                    os.remove(file_name)   # Remove the file if it's not a valid web file
                     print("The fetched file is not a valid web file and has been removed.")
