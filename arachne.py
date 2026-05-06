@@ -22,6 +22,13 @@ class Arachne:
         else:
             print('Invalid URL format')
         
+    def validate_web_file(self, file_path):   # Replaced this method
+        if not self.validate_web_url(file_path) and not self.validate_file(file_path):
+            print('Invalid URL format')
+            return False
+        
+        return True
+    
     def validate_file(self, file_path):
         return os.path.isfile(file_path) if file_path is not None else False
     
@@ -72,10 +79,3 @@ class Arachne:
         print('Failed to run tests', process.returncode)
         print('Output:', process.stdout, process.stderr)
         return False
-    
-    def validate_web_file(self, file_path):  # New method
-        if not self.validate_web_url(file_path) and not self.validate_file(file_path):
-            print('Invalid URL format')
-            return False
-        
-        return True
