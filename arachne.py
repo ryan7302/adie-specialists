@@ -12,7 +12,7 @@ class Arachne():
             raise ValueError("Invalid configuration: ‘daemon_interval’ must be an integer greater than 0")
         
         if 'test_command' not in self.config or not isinstance(self.config['test_command'], str) or \
-                    'retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1:
+                     'retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1:
             return False
         
         if  'url' not in self.config or not (isinstance(self.config['url'], str) and (self.config['url'].startswith('http://') or self.config['url'].startswith('https://'))):
