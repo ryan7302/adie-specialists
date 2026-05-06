@@ -10,7 +10,7 @@ class Arachne():
         if 'daemon_interval' not in self.config or (isinstance(self.config['daemon_interval'], int) and self.config['daemon_interval'] > 0):
             return False
     
-        if ('test_command' not in self.config or not isinstance(self.config['test_command'], str)) or \
+        if ('test_command' not in self.config or not isinstance(self.config['test_command'], str)) or  \
            ('retries' not in self.config or not isinstance(self.config['retries'], int) or self.config['retries'] < 1):
             return False
         
